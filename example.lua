@@ -1,60 +1,35 @@
 local Handler = require(script.Handler)
 
-
-local Button = Handler:AddUIInstance("TextButton", {
-	{
-		function()
-			print("working")
-		end, "MouseButton1Click";
-	};
-	{
-		function()
-			print("Hey")
-		end, "MouseEnter";
-	};
-	{
-		function()
-			print("Bye")
-		end, "MouseLeave";
-	};
-
-})
-
-task.wait(3)
-
-Handler:RemoveConnections(Button)
-
-Handler:GiveConnections(Button, {
-	{
-		function()
-			print("NEWWWW")
-		end, "MouseButton1Click";
-	};
-	{
-		function()
-			print("NEWWteastWW")
-		end, "MouseButton1Click";
-	};
-})
-task.wait(2)
-
-local TextLabel = Handler:AddUIChild(Button, "TextLabel", {
+local TextLabel = Handler:AddUIInstance("TextLabel", {
 	{"Size", UDim2.new(1,0,1,0)};
-	{"Text", "Stupid..."};
+	{"Text", "Welcome"};
+	{"Parent", script.Parent.Frame};
 })
 
-local UICorner = Handler:AddUIChild(TextLabel, "UICorner", {
-	{"CornerRadius", UDim.new(0,10)};
+local UIStroke = Handler:AddUIChild(TextLabel, "UIStroke", {
+	{"Color", Color3.fromRGB(255,255,255)};
+	{"ApplyStrokeMode", "Border"};
+	{"Thickness", 3};
+	{"Enabled", false};
 })
 
-task.wait(1)
+local UICorner = Handler:UpdateProperty(Handler:AddUIChild(TextLabel, "UICorner"), {
+	{"CornerRadius", UDim.new(50,50)};
+})
 
-for _ = 1,10 do
-	task.wait(.1)
-	Handler:UpdateProperty(TextLabel, {
-		{"Text", "Stupid..."..tostring(_)};
-	})
-	Handler:UpdateProperty(UICorner, {
-		{"CornerRadius", UDim.new(0,_)}
-	})
-end
+Handler:AddConnections(TextLabel, {
+	{
+		function()
+			Handler:UpdateProperty(UIStroke, {
+				{"Enabled", true}
+			})
+		end, "MouseEnter"
+	};
+	{
+		function()
+			Handler:UpdateProperty(UIStroke, {
+				{"Enabled", false}
+			})
+		end, "MouseLeave"
+	};
+})
