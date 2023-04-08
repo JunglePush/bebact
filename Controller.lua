@@ -11,7 +11,7 @@ function Controller:RemoveConnections(UI)
 	return UI
 end
 
-function Controller:GiveConnections(UI, ...)
+function Controller:AddConnections(UI, ...)
 	for index, button in pairs(...) do
 		local func = button[1]
 		local trig = button[2]
@@ -24,12 +24,14 @@ function Controller:GiveConnections(UI, ...)
 	return UI
 end
 
-function Controller:AddUIInstance(Inst, ...)
+function Controller:AddUIInstance(Inst, Propertys, ...)
 	local UI = Instance.new(Inst, script.Parent.Parent.Frame)
 	UI.Size = UDim2.new(.2,0,.2,0)
 	UIElements[UI] = {UI}
 	
-	UI = self:GiveConnections(UI, ...)
+	if ... ~= nil then
+		UI = self:GiveConnections(UI, ...)
+	end
 	
 	return UI
 end
@@ -48,7 +50,9 @@ end
 function Controller:AddUIChild(UI, Inst, ...)
 	local Child = Instance.new(Inst, UI)
 	
-	Child = self:UpdateProperty(Child, ...)
+	if ... ~= nil then
+		Child = self:UpdateProperty(Child, ...)
+	end
 	
 	return Child
 end
