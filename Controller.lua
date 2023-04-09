@@ -1,8 +1,14 @@
 local Controller = {}
 
 local UIElements = {}
+local Instances = {}
 
 local TweenService = game:GetService("TweenService")
+local UpdateInstances = script.Parent.UpdateInstances
+
+function Controller:UpdateInstances()
+	UpdateInstances:Fire(Instances)
+end
 
 function Controller:RemoveConnections(UI, ...)
 	local Inst = UIElements[UI][1]
@@ -34,6 +40,7 @@ function Controller:RemoveConnections(UI, ...)
 		end
 	end
 	
+	
 	return UI
 end
 
@@ -63,23 +70,24 @@ end
 
 function Controller:AddUIChild(UI, Inst, ...)
 	local Child = Instance.new(Inst, UI)
-
+	
+	UIElements[Child] = {UI}
+	UIElements[Child]["Connections"] = {}
+	
 	if ... ~= nil then
 		Child = self:UpdateProperty(Child, ...)
 	end
-
+	
+	Instances[Child.Name] = Child
+	self:UpdateInstances()
 	return Child
 end
 
 function Controller:AddUIInstance(Inst, Propertys, Childs, ...)
 	local UI = Instance.new(Inst)
-	UI.Size = UDim2.new(.2,0,.2,0)
+--	UI.Size = UDim2.new(.2,0,.2,0)
 	UIElements[UI] = {UI}
 	UIElements[UI]["Connections"] = {}
-	
-	local Instances = {}
-	
-	Instances[tostring(UI)] = UI
 	
 	if Childs ~= nil then
 		for i,v in pairs(Childs) do
@@ -88,19 +96,21 @@ function Controller:AddUIInstance(Inst, Propertys, Childs, ...)
 			print(inst, property)
 			
 			local child = self:AddUIChild(UI, inst, property)
-			Instances[tostring(child)] = child
+			Instances[tostring(child.Name)] = child
 		end
 	end
 	
 	if Propertys ~= nil then
-		self:UpdateProperty(UI, Propertys)
+		UI = self:UpdateProperty(UI, Propertys)
 	end
 	
 	if ... ~= nil then
 		UI = self:GiveConnections(UI, ...)
 	end
 	
-	print(Instances)
+	Instances[tostring(UI.Name)] = UI
+	
+	self:UpdateInstances()
 	
 	return Instances
 end
@@ -114,11 +124,11 @@ function Controller:TweenUI(UI, Inst, ...)
 		local override = property[5]
 		local callback = property[6]
 		local Property2 = property[7]
-
+		
 		if typeof(callback) ~= "function" then
 			callback = nil
 		end
-
+		
 		if Inst == "Size" then
 			UI:TweenSize(Property, easingDirection, easingStyle, Time, override ,callback)
 		elseif Inst == "Position" then
@@ -128,7 +138,7 @@ function Controller:TweenUI(UI, Inst, ...)
 			UI:TweenSizeAndPosition(Property, Property2, easingDirection, easingStyle, Time,override, callback)
 		end
 	end
-
+	
 	return UI
 end
 
@@ -151,6 +161,5 @@ function Controller:RemoveUIDescendants(UI)
 
 	return UI
 end
-
 
 return Controller
